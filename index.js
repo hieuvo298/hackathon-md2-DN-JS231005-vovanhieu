@@ -1,77 +1,104 @@
-//bài 1
-function findMaxUniqueNumber(numbers) {
-  numbers.sort(function(a, b) {
-    return b - a;
-  });
-  for (let i = 0; i < numbers.length - 1; i++) {
-    if (numbers[i] !== numbers[i + 1]) {
-      console.log("Số lớn nhất và duy nhất là: " + numbers[i]);
-      return numbers[i];
-    }
-  }
+const todoList = [];
+
+if (!JSON.parse(localStorage.getItem("todoList"))) {
+    localStorage.setItem('todoList', JSON.stringify(todoList));
 }
-let numbers = [1,2,3,5,5];
-findMaxUniqueNumber(numbers);
-  // bài 2
-  function isPrime(num) {
-    if (num < 2) {
-        return false;
+
+function renderTodo() {
+    const localData = JSON.parse(localStorage.getItem('todoList'));
+    const listTodo = document.querySelector('.list-todo');
+    listTodo.innerHTML = "";
+
+    if (!localData || localData.length === 0) { 
+        listTodo.innerHTML = `
+            <img src="./img/no-data-concept-illustration_114360-536.avif" alt="">
+        `;
+    } else {
+        localData.forEach(function (item, index) {
+            listTodo.innerHTML += `
+                <div class="todo-list">
+                    <div class="checkbox">
+                    <input type="checkbox" onclick="updateTodo(${index})" ${item.status ? 'checked' : ''}>
+                        <p style="text-decoration:${item.status ? 'line-through' : 'none'}")">${item.content}</p>
+                    </div>
+                    <div class="icon">
+                        <i onclick="editTodo('${index}')" class="fa-solid fa-pen" style="color: #ffa200;"></i>
+                        <i onclick="deleteTodo('${index}')" class="fa-solid fa-trash" style="color: #e10505;"></i>
+                    </div>
+                </div>
+            `;
+        });
     }
-    for (let i = 2; i <= Math.sqrt(num); i++) {
-        if (num % i === 0) {
-            return false;
+}
+renderTodo();
+function addTodo() {
+    const inputElement = document.querySelector('#input-form')
+    const inputValue = inputElement.value
+    const newTodo = {
+        content: inputValue,
+        status: false
+    }
+    if (!inputValue) {
+        alert('Tên công việc không được để trống.'); 
+        return;
+    }
+    const localData = JSON.parse(localStorage.getItem('todoList'))
+    localData.push(newTodo)
+    localStorage.setItem('todoList', JSON.stringify(localData))
+    document.querySelector('#input-form').value = ""
+    renderTodo()
+}
+function deleteTodo(index) {
+    const dataLocal = JSON.parse(localStorage.getItem('todoList'))
+    const item = dataLocal[index];
+    const confirmDelete = confirm(`Bạn có chắc muốn xóa công việc "${item.content}" không?`);
+    
+    if (confirmDelete) {
+        const newData = dataLocal.filter(function (item, i) {
+            return index != i
+        })
+        localStorage.setItem('todoList', JSON.stringify(newData))
+        renderTodo()
+    }
+}
+
+function editTodo(index) {
+    const dataLocal = JSON.parse(localStorage.getItem('todoList'))
+    const item = dataLocal[index];
+    const editInput = prompt('Nhập công việc muốn sửa :', item.content);
+    if (!editInput) {
+        return alert('Tên công việc không được để trống.'); 
+
+    }
+    if (editInput !== null) { 
+        const updateData = dataLocal.map((item, i) => {
+            if (i == index) {
+                return { ...item, content: editInput };
+            } else {
+                return item;
+            }
+        });
+        localStorage.setItem('todoList', JSON.stringify(updateData));
+        renderTodo();
+    }
+}
+
+function updateTodo(index) {
+    const dataLocal = JSON.parse(localStorage.getItem('todoList'));
+    const newData = dataLocal.map(function (item, i) {
+        if (index == i) {
+            return {
+                content: item.content,
+                status: !item.status
+            };
+        } else {
+            return item;
         }
-    }
-    return true;
-}
-
-function sumOfPrimes(inputString) {
-    const numbers = inputString;
-    let sum = 0;
-
-    for (let i = 0; i < numbers.length; i++) {
-        if (isPrime(numbers[i])) {
-            sum += numbers[i];
-        }
-    }
-
-    return sum;
-}
-
-const inputString = [9,2,3,7,1];
-const result = sumOfPrimes(inputString);
-console.log(`Tổng các số nguyên tố là: ${result}`);
-
-
-  //bài 4
-  function removeNumbers(inputString) {
-    var stringWithoutNumbers = '';
-    for (var i = 0; i < inputString.length; i++) {
-        if (isNaN(parseInt(inputString[i]))) {
-            stringWithoutNumbers += inputString[i];
-        }
-    }
-    return stringWithoutNumbers;
-}
-var userInput = prompt("Enter a string: ");
-
-var ketqua = removeNumbers(userInput);
-console.log("chuỗi sau khi xóa số là: " + ketqua);
-  //bài 5
-  function daoNguocChuoi(str) {
-    const words = str.split(' ');
-    const reversedWords = words.map(word => {
-        return word.split('').reverse().join('');
     });
-    const reversedString = reversedWords.join(' ');
-
-    return reversedString;
+    localStorage.setItem('todoList', JSON.stringify(newData));
+    renderTodo();
 }
-const a = "This is an example!";
-const reversedOutput = daoNguocChuoi(a);
-console.log(`chuỗi sau khi đảo ngược là: ${reversedOutput}`);
-
- 
-  
- 
-  
+function countCompleteTodo(){
+    const dataLocal = JSON.parse(localStorage.getItem('todoList'));
+     
+}
